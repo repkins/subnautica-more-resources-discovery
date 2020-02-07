@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MapRoomScanningImprovements</RootNamespace>
-    <AssemblyName>MapRoomScanningImprovements</AssemblyName>
+    <AssemblyName>MoreScannerRoomBlips</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>E:\Program Files %28x86%29\Steam\steamapps\common\Subnautica\QMods\MapRoomScanningImprovements\</OutputPath>
+    <OutputPath>E:\Program Files %28x86%29\Steam\steamapps\common\Subnautica\QMods\MoreScannerRoomBlips\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -27,7 +27,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>E:\Program Files %28x86%29\Steam\steamapps\common\Subnautica\QMods\MapRoomScanningImprovements\</OutputPath>
+    <OutputPath>E:\Program Files %28x86%29\Steam\steamapps\common\Subnautica\QMods\MoreScannerRoomBlips\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -57,9 +57,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\EntityCellExtensions.cs" />
+    <Compile Include="SubRoot_OnPlayerEntered_Patch.cs" />
+    <Compile Include="Extensions\MapRoomFunctionalityExtensions.cs" />
     <Compile Include="Extensions\ResourceTrackerExtensions.cs" />
-    <Compile Include="MapRoomFunctionality_StartScanning_Patch.cs" />
     <Compile Include="Extensions\CellManagerExtensions.cs" />
     <Compile Include="MapRoomFunctionality_OnResourceDiscovered_Patch.cs" />
     <Compile Include="MainPatcher.cs" />

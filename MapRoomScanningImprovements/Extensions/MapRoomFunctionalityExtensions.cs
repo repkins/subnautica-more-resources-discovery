@@ -1,47 +1,25 @@
-﻿using Harmony;
-using MapRoomScanningImprovements.Extensions;
-using MapRoomScanningImprovements.Utils;
+﻿using MapRoomScanningImprovements.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
-using UWE;
 
-namespace MapRoomScanningImprovements
+namespace MapRoomScanningImprovements.Extensions
 {
-    [HarmonyPatch(typeof(MapRoomFunctionality))]
-    [HarmonyPatch("Start")]
-    class MapRoomFunctionality_StartScanning_Patch
+    static class MapRoomFunctionalityExtensions
     {
-        private static Dictionary<MapRoomFunctionality, bool> scanActives = new Dictionary<MapRoomFunctionality, bool>();
-
-        static void Postfix(MapRoomFunctionality __instance, bool ___scanActive)
+        public static IEnumerator ScanInSleepingBatchCellsNotQueuesCoroutine(this MapRoomFunctionality mapRoom)
         {
-            // if (!scanActives.ContainsKey(__instance)) {
-            //     scanActives.Add(__instance, ___scanActive);
-            // }
-            // else
-            // {
-            //    scanActives[__instance] = ___scanActive;
-            // }
-
-            // if (___scanActive)
-            // {
-                Logger.Debug(string.Format("Starting scan in sleeping BatchCells"));
-                __instance.StartCoroutine(ScanInSleepingBatchCellsNotQueuesCoroutine(__instance));
-            // }
-        }
-
-        private static IEnumerator ScanInSleepingBatchCellsNotQueuesCoroutine(MapRoomFunctionality mapRoom)
-        {
-            CellManager cellManager = LargeWorldStreamer.main.cellManager;
-
             while (UnityEngine.Time.timeScale <= 0)
             {
                 yield return null;
             }
 
+            CellManager cellManager = LargeWorldStreamer.main.cellManager;
+                
+            Logger.Debug(string.Format("Starting scan in sleeping BatchCells"));
             using (var serializerProxy = ProtobufSerializerPool.GetProxy())
             {
                 var loadedCells = cellManager.GetLoadedCells(mapRoom.transform.position);
@@ -65,7 +43,7 @@ namespace MapRoomScanningImprovements
 
                                 yield return task;
                                 liveRoot = task.GetResult();
-                            } 
+                            }
                             else
                             {
                                 liveRoot = null;
@@ -87,12 +65,6 @@ namespace MapRoomScanningImprovements
                         {
                             Logger.Debug(string.Format("Entity cell \"{0}\" can't have liveRoot", entityCell.ToString()));
                         }
-
-                        // var scanActive = scanActives[mapRoom];
-                        // if (!scanActive)
-                        // {
-                        //     break;
-                        // }
                     }
                 }
             }
