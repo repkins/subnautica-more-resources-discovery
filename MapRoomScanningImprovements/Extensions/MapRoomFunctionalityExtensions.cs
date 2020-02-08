@@ -23,20 +23,21 @@ namespace MapRoomScanningImprovements.Extensions
             Logger.Debug(string.Format("Starting scan in sleeping BatchCells of level {0}", level));
             using (var serializerProxy = ProtobufSerializerPool.GetProxy())
             {
-                var loadedCells = cellManager.GetLoadedCells(mapRoom.transform.position, level);
-                while (loadedCells.MoveNext())
+                var scanCells = cellManager.GetScanCells(mapRoom.transform.position, level);
+                while (scanCells.MoveNext())
                 {
-                    var entityCell = loadedCells.Current;
+                    var entityCell = scanCells.Current;
                     if (!entityCell.IsProcessing())
                     {
                         var serialData = entityCell.GetSerialData();
+
                         if (entityCell.liveRoot == null && serialData.Length > 0)
                         {
                             Logger.Debug(string.Format("Entity cell \"{0}\" is not awake and has serialData", entityCell.ToString()));
 
                             UnityEngine.GameObject liveRoot;
 
-                            using (MemoryStream stream = new MemoryStream(serialData.Data, false))
+                            using (MemoryStream stream = new MemoryStream(serialData.Data.Array, serialData.Data.Offset, serialData.Data.Length, false))
                             {
                                 bool headerDeserialized = serializerProxy.Value.TryDeserializeStreamHeader(stream);
                                 if (headerDeserialized)
@@ -66,6 +67,72 @@ namespace MapRoomScanningImprovements.Extensions
                             else
                             {
                                 Logger.Debug(string.Format("Entity cell \"{0}\" can't have liveRoot", entityCell.ToString()));
+                            }
+                        }
+
+                        var waiterData = entityCell.GetWaiterData();
+                        if (waiterData.Length > 0)
+                        {
+                            Logger.Debug(string.Format("Entity cell \"{0}\" is not awake and has waiterData", entityCell.ToString()));
+
+                            UnityEngine.GameObject waiterRoot;
+
+                            using (MemoryStream stream = new MemoryStream(waiterData.Data.Array, waiterData.Data.Offset, waiterData.Data.Length, false))
+                            {
+                                while (stream.Position < waiterData.Length)
+                                {
+                                    CoroutineTask<UnityEngine.GameObject> task = serializerProxy.Value.DeserializeObjectTreeAsync(stream, true, 0);
+
+                                    yield return waitFor(task, waitSeconds);
+                                    waiterRoot = task.GetResult();
+                                    if (waiterRoot)
+                                    {
+                                        Logger.Debug(string.Format("Entity cell \"{0}\" can have waiterRoot {1}", entityCell.ToString(), waiterRoot.ToString()));
+
+                                        var resourceTrackers = waiterRoot.GetComponentsInChildren<ResourceTracker>(true);
+                                        foreach (var resourceTracker in resourceTrackers)
+                                        {
+                                            resourceTracker.Start();
+                                            Logger.Debug(string.Format("Entity cell \"{0}\" invoked \"Start\" for {1}", entityCell.ToString(), resourceTracker.gameObject.ToString()));
+                                        }
+                                    }
+                                }
+                            }                            
+                        }
+
+                        var legacyData = entityCell.GetLegacyData();
+                        if (legacyData.Length > 0)
+                        {
+                            Logger.Debug(string.Format("Entity cell \"{0}\" has legacyData", entityCell.ToString()));
+
+                            UnityEngine.GameObject legacyRoot;
+
+                            using (MemoryStream stream = new MemoryStream(legacyData.Data.Array, legacyData.Data.Offset, legacyData.Data.Length, false))
+                            {
+                                bool headerDeserialized = serializerProxy.Value.TryDeserializeStreamHeader(stream);
+                                if (headerDeserialized)
+                                {
+                                    CoroutineTask<UnityEngine.GameObject> task = serializerProxy.Value.DeserializeObjectTreeAsync(stream, true, 0);
+
+                                    yield return waitFor(task, waitSeconds);
+                                    legacyRoot = task.GetResult();
+                                }
+                                else
+                                {
+                                    legacyRoot = null;
+                                }
+                            }
+
+                            if (legacyRoot)
+                            {
+                                Logger.Debug(string.Format("Entity cell \"{0}\" can have legacyRoot {1}", entityCell.ToString(), legacyRoot.ToString()));
+
+                                var resourceTrackers = legacyRoot.GetComponentsInChildren<ResourceTracker>(true);
+                                foreach (var resourceTracker in resourceTrackers)
+                                {
+                                    resourceTracker.Start();
+                                    Logger.Debug(string.Format("Entity cell \"{0}\" invoked \"Start\" for {1}", entityCell.ToString(), resourceTracker.gameObject.ToString()));
+                                }
                             }
                         }
                     }                    

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MapRoomScanningImprovements.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,20 +9,38 @@ namespace MapRoomScanningImprovements.Extensions
 {
     public static class CellManagerExtensions
     {
-        public static IEnumerator<EntityCell> GetLoadedCells(this CellManager cellManager, UnityEngine.Vector3 position, int level)
+        public static IEnumerator<EntityCell> GetScanCells(this CellManager cellManager, UnityEngine.Vector3 position, int level)
         {
-            var batchToCellsField = typeof(CellManager).GetField("batch2cells", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            var batch2CellsField = typeof(CellManager).GetField("batch2cells", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             var GetCellsMethod = typeof(BatchCells).GetMethod("GetCells", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
             var largeWorldStreamer = LargeWorldStreamer.main;
+            var batch2Cells = batch2CellsField.GetValue(cellManager) as Dictionary<Int3, BatchCells>;
 
-            var batchToCells = batchToCellsField.GetValue(cellManager) as Dictionary<Int3, BatchCells>;
-            var orderedBatchCells = batchToCells
-                .OrderBy(pair => (position - largeWorldStreamer.GetBatchCenter(pair.Key)).sqrMagnitude)
-                .Select(pair => pair.Value);
+            var containingBatch = largeWorldStreamer.GetContainingBatch(position);
+            var scanBounds = new Int3.Bounds(containingBatch - 3, containingBatch + 3);
 
-            foreach (var batchCells in orderedBatchCells)
+            var orderedScanBatches = scanBounds.ToEnumerable()
+                .OrderBy(batch => (position - largeWorldStreamer.GetBatchCenter(batch)).sqrMagnitude);
+
+            foreach (var batch in orderedScanBatches)
             {
+                Logger.Debug(string.Format("Now at batch \"{0}\"", batch));
+
+                var batchVisible = true;
+                if (!batch2Cells.TryGetValue(batch, out var batchCells))
+                {
+                    Logger.Debug(string.Format("Loading cells of batch \"{0}\"", batch));
+
+                    batchCells = cellManager.InitializeBatchCells(batch);
+                    
+                    cellManager.LoadBatchCellsThreaded(batchCells, false);
+
+                    batchVisible = false;
+                }
+
+                Logger.Debug(string.Format("Getting cells of batch \"{0}\"", batchCells.batch));
+
                 var cellsTier = GetCellsMethod.Invoke(batchCells, new object[] { level }) as Array3<EntityCell>;
                 var orderedCellsTier = cellsTier
                     .Where(cell => cell != null)
@@ -29,11 +48,19 @@ namespace MapRoomScanningImprovements.Extensions
 
                 foreach (var entityCell in orderedCellsTier)
                 {
+                    Logger.Debug(string.Format("Getting cell {0} of batch \"{1}\"", entityCell.CellId, batchCells.batch));
+
                     if (entityCell != null)
                     {
                         yield return entityCell;
                     }
                 }
+
+                if (!batchVisible)
+                {
+                    Logger.Debug(string.Format("Unloading cells of batch \"{0}\"", batch));
+                    cellManager.UnloadBatchCells(batch);
+                };
             }
         }
     }
