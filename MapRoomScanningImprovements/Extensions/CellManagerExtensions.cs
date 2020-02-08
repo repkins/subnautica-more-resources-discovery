@@ -8,7 +8,7 @@ namespace MapRoomScanningImprovements.Extensions
 {
     public static class CellManagerExtensions
     {
-        public static IEnumerator<EntityCell> GetLoadedCells(this CellManager cellManager, UnityEngine.Vector3 position)
+        public static IEnumerator<EntityCell> GetLoadedCells(this CellManager cellManager, UnityEngine.Vector3 position, int level)
         {
             var batchToCellsField = typeof(CellManager).GetField("batch2cells", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             var GetCellsMethod = typeof(BatchCells).GetMethod("GetCells", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -20,21 +20,18 @@ namespace MapRoomScanningImprovements.Extensions
                 .OrderBy(pair => (position - largeWorldStreamer.GetBatchCenter(pair.Key)).sqrMagnitude)
                 .Select(pair => pair.Value);
 
-            for (int i = 0; i < 4; i++)
+            foreach (var batchCells in orderedBatchCells)
             {
-                foreach (var batchCells in orderedBatchCells)
-                {
-                    var cellsTier = GetCellsMethod.Invoke(batchCells, new object[] { i }) as Array3<EntityCell>;
-                    var orderedCellsTier = cellsTier
-                        .Where(cell => cell != null)
-                        .OrderBy(cell => (position - cell.GetCenter()).sqrMagnitude);
+                var cellsTier = GetCellsMethod.Invoke(batchCells, new object[] { level }) as Array3<EntityCell>;
+                var orderedCellsTier = cellsTier
+                    .Where(cell => cell != null)
+                    .OrderBy(cell => (position - cell.GetCenter()).sqrMagnitude);
 
-                    foreach (var entityCell in orderedCellsTier)
+                foreach (var entityCell in orderedCellsTier)
+                {
+                    if (entityCell != null)
                     {
-                        if (entityCell != null)
-                        {
-                            yield return entityCell;
-                        }
+                        yield return entityCell;
                     }
                 }
             }

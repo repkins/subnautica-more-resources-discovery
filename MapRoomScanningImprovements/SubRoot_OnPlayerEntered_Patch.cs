@@ -11,12 +11,19 @@ namespace MapRoomScanningImprovements
     [HarmonyPatch("OnPlayerEntered")]
     class SubRoot_OnPlayerEntered_Patch
     {
+        private static List<SubRoot> coroutinesSubRoots = new List<SubRoot>();
+
         static void Postfix(SubRoot __instance)
         {
             var mapRoom = __instance.GetComponentInChildren<MapRoomFunctionality>();
-            if (mapRoom != null)
+            if (mapRoom != null && !coroutinesSubRoots.Contains(__instance))
             {
-                mapRoom.StartCoroutine(mapRoom.ScanInSleepingBatchCellsNotQueuesCoroutine());
+                coroutinesSubRoots.Add(__instance);
+
+                mapRoom.StartCoroutine(mapRoom.ScanInSleepingBatchCellsNotQueuesCoroutine(0));
+                mapRoom.StartCoroutine(mapRoom.ScanInSleepingBatchCellsNotQueuesCoroutine(1));
+                mapRoom.StartCoroutine(mapRoom.ScanInSleepingBatchCellsNotQueuesCoroutine(2));
+                mapRoom.StartCoroutine(mapRoom.ScanInSleepingBatchCellsNotQueuesCoroutine(3));
             }
         }
     }
