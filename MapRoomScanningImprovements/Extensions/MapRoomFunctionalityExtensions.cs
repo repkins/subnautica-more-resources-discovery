@@ -14,12 +14,9 @@ namespace MapRoomScanningImprovements.Extensions
         private static LargeWorldStreamer largeWorldStreamer = LargeWorldStreamer.main;
         private static CellManager cellManager = LargeWorldStreamer.main.cellManager;
 
-        private static float waitSeconds = 0.016f;
-        private static int numOfBatchRings = 3;
-
         private static WorkerThread workerThread = ThreadUtils.StartWorkerThread("I/O", "ScannerThread", System.Threading.ThreadPriority.BelowNormal, -2, 32);
 
-        public static IEnumerator ScanInSleepingBatchCellsNotQueuesCoroutine(this MapRoomFunctionality mapRoom, int level)
+        public static IEnumerator ScanInSleepingBatchCellsNotQueuesCoroutine(this MapRoomFunctionality mapRoom, int numOfBatchRings, int level)
         {
             Logger.Debug(string.Format("Starting scan in sleeping BatchCells of level {0}", level));
 
@@ -78,7 +75,7 @@ namespace MapRoomScanningImprovements.Extensions
                                     {
                                         CoroutineTask<UnityEngine.GameObject> task = serializerProxy.Value.DeserializeObjectTreeAsync(stream, true, 0);
 
-                                        yield return waitFor(task, waitSeconds);
+                                        yield return task;
                                         liveRoot = task.GetResult();
                                     }
                                     else
@@ -97,6 +94,8 @@ namespace MapRoomScanningImprovements.Extensions
                                         resourceTracker.Start();
                                         Logger.Debug(string.Format("Entity cell \"{0}\" invoked \"Start\" for {1}", entityCell.ToString(), resourceTracker.gameObject.ToString()));
                                     }
+
+                                    UnityEngine.Object.Destroy(liveRoot);
                                 }
                                 else
                                 {
@@ -117,7 +116,7 @@ namespace MapRoomScanningImprovements.Extensions
                                     {
                                         CoroutineTask<UnityEngine.GameObject> task = serializerProxy.Value.DeserializeObjectTreeAsync(stream, true, 0);
 
-                                        yield return waitFor(task, waitSeconds);
+                                        yield return task;
                                         waiterRoot = task.GetResult();
                                         if (waiterRoot)
                                         {
@@ -129,6 +128,8 @@ namespace MapRoomScanningImprovements.Extensions
                                                 resourceTracker.Start();
                                                 Logger.Debug(string.Format("Entity cell \"{0}\" invoked \"Start\" for {1}", entityCell.ToString(), resourceTracker.gameObject.ToString()));
                                             }
+                                            
+                                            UnityEngine.Object.Destroy(waiterRoot);
                                         }
                                     }
                                 }
@@ -148,7 +149,7 @@ namespace MapRoomScanningImprovements.Extensions
                                     {
                                         CoroutineTask<UnityEngine.GameObject> task = serializerProxy.Value.DeserializeObjectTreeAsync(stream, true, 0);
 
-                                        yield return waitFor(task, waitSeconds);
+                                        yield return task;
                                         legacyRoot = task.GetResult();
                                     }
                                     else
@@ -167,6 +168,8 @@ namespace MapRoomScanningImprovements.Extensions
                                         resourceTracker.Start();
                                         Logger.Debug(string.Format("Entity cell \"{0}\" invoked \"Start\" for {1}", entityCell.ToString(), resourceTracker.gameObject.ToString()));
                                     }
+
+                                    UnityEngine.Object.Destroy(legacyRoot);
                                 }
                             }
                         }
@@ -177,70 +180,13 @@ namespace MapRoomScanningImprovements.Extensions
                         Logger.Debug(string.Format("Unloading cells of batch \"{0}\"", batch));
                         cellManager.UnloadBatchCells(batch);
                     };
+
+                    yield return null;
                 }
             }
             Logger.Debug(string.Format("Finishing scan in sleeping BatchCells of level {0}", level));
 
             yield break;
-        }
-
-        private static IEnumerator waitFor(IEnumerator enumetator, float seconds)
-        {
-            if (enumetator == null)
-            {
-                yield break;
-            }
-
-            float cyclesWithinFrame = 1;
-
-            Stack<IEnumerator> stack = new Stack<IEnumerator>();
-            stack.Push(enumetator);
-            while (stack.Count > 0)
-            {
-                if (UnityEngine.Time.timeScale <= 0)
-                {
-                    yield return null;
-                    continue;
-                }
-
-                if (cyclesWithinFrame < 1)
-                {
-                    yield return null;
-                    cyclesWithinFrame += UnityEngine.Time.unscaledDeltaTime / seconds;
-                    Logger.Debug(string.Format("Skip: Cycles {0}", cyclesWithinFrame));
-                    continue;
-                }
-
-                IEnumerator currentEnumetator = stack.Peek();
-
-                if (currentEnumetator.MoveNext())
-                {
-                    var currentValue = currentEnumetator.Current;
-                    if (currentValue is IEnumerator innerEnumerator)
-                    {
-                        stack.Push(innerEnumerator);
-                    }
-                    else
-                    {
-                        if (cyclesWithinFrame < 2)
-                        {
-                            cyclesWithinFrame--;
-
-                            yield return null;
-                            cyclesWithinFrame += UnityEngine.Time.unscaledDeltaTime / seconds;
-                            Logger.Debug(string.Format("Next: Cycles {0}", cyclesWithinFrame));
-                        } 
-                        else
-                        {
-                            cyclesWithinFrame--;
-                        }
-                    }
-                }
-                else
-                {
-                    stack.Pop();
-                }
-            }
         }
     
         private sealed class LoadBatchCellsTask : IWorkerTask, IAsyncOperation
