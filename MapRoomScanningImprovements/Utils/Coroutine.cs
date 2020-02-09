@@ -30,8 +30,8 @@ namespace MapRoomScanningImprovements.Utils
                 if (cyclesWithinFrame < 1)
                 {
                     yield return null;
-                    cyclesWithinFrame += UnityEngine.Time.unscaledDeltaTime / seconds;
-                    Logger.Debug(string.Format("Skip: Cycles {0}", cyclesWithinFrame));
+                    cyclesWithinFrame += UnityEngine.Time.deltaTime / seconds;
+                    Logger.Debug(string.Format("Skip: Ms {0}, Cycles {1}", UnityEngine.Time.deltaTime, cyclesWithinFrame));
                     continue;
                 }
 
@@ -51,8 +51,8 @@ namespace MapRoomScanningImprovements.Utils
                             cyclesWithinFrame--;
 
                             yield return null;
-                            cyclesWithinFrame += UnityEngine.Time.unscaledDeltaTime / seconds;
-                            Logger.Debug(string.Format("Next: Cycles {0}", cyclesWithinFrame));
+                            cyclesWithinFrame += UnityEngine.Time.deltaTime / seconds;
+                            Logger.Debug(string.Format("Next: Ms {0}, Cycles {1}", UnityEngine.Time.deltaTime, cyclesWithinFrame));
                         }
                         else
                         {

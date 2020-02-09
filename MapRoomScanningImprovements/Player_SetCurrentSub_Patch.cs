@@ -15,7 +15,7 @@ namespace MapRoomScanningImprovements
     {
         private static List<SubRoot> coroutinesSubRoots = new List<SubRoot>();
 
-        private static float waitSeconds = 0.016f;
+        private static float waitSeconds = 0.008f;
         private static int numOfBatchRings = 3;
 
         static void Postfix(Player __instance, SubRoot sub)
@@ -27,9 +27,9 @@ namespace MapRoomScanningImprovements
                 if (!coroutinesSubRoots.Contains(sub))
                 {
                     coroutinesSubRoots.Add(sub);
-                }
 
-                __instance.StartCoroutine(StartScanning(sub));
+                    __instance.StartCoroutine(StartScanning(sub));
+                }
             }
         }
 
@@ -43,10 +43,7 @@ namespace MapRoomScanningImprovements
             var mapRoom = subRoot.GetComponentInChildren<MapRoomFunctionality>();
             if (mapRoom != null)
             {
-                mapRoom.StartCoroutine(Coroutine.waitFor(mapRoom.ScanInSleepingBatchCellsNotQueuesCoroutine(numOfBatchRings, 0), waitSeconds));
-                mapRoom.StartCoroutine(Coroutine.waitFor(mapRoom.ScanInSleepingBatchCellsNotQueuesCoroutine(numOfBatchRings, 1), waitSeconds));
-                mapRoom.StartCoroutine(Coroutine.waitFor(mapRoom.ScanInSleepingBatchCellsNotQueuesCoroutine(numOfBatchRings, 2), waitSeconds));
-                mapRoom.StartCoroutine(Coroutine.waitFor(mapRoom.ScanInSleepingBatchCellsNotQueuesCoroutine(numOfBatchRings, 3), waitSeconds));
+                mapRoom.StartCoroutine(Coroutine.waitFor(mapRoom.ScanInSleepingBatchCellsNotQueuesCoroutine(numOfBatchRings), waitSeconds));
             }
         }
     }
