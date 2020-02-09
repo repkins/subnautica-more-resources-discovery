@@ -18,7 +18,7 @@ namespace MapRoomScanningImprovements.Extensions
 
         public static IEnumerator ScanInSleepingBatchCellsNotQueuesCoroutine(this MapRoomFunctionality mapRoom, int numOfBatchRings)
         {
-            Logger.Debug(string.Format("Starting scan in sleeping BatchCells"));
+            Logger.Info(string.Format("Starting scan in sleeping/unloaded BatchCells"));
 
             var batch2Cells = cellManager.GetBatch2Cells();
 
@@ -187,7 +187,7 @@ namespace MapRoomScanningImprovements.Extensions
                     yield return null;
                 }
             }
-            Logger.Debug(string.Format("Finishing scan in sleeping BatchCells"));
+            Logger.Info(string.Format("Finishing scan in sleeping/unloaded BatchCells"));
 
             yield break;
         }

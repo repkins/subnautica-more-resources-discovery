@@ -15,6 +15,9 @@ namespace MapRoomScanningImprovements
             var harmony = HarmonyInstance.Create("subnautica.repkins.map-room-scanning-improvements");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
             Logger.Info("Successfully patched");
+
+            Config.Load();
+            Logger.Info("Config successfully loaded");
         }
     }
 }

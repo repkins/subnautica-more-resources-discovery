@@ -15,9 +15,6 @@ namespace MapRoomScanningImprovements
     {
         private static List<SubRoot> coroutinesSubRoots = new List<SubRoot>();
 
-        private static float waitSeconds = 0.008f;
-        private static int numOfBatchRings = 3;
-
         static void Postfix(Player __instance, SubRoot sub)
         {
             if (sub)
@@ -43,6 +40,9 @@ namespace MapRoomScanningImprovements
             var mapRoom = subRoot.GetComponentInChildren<MapRoomFunctionality>();
             if (mapRoom != null)
             {
+                var waitSeconds = Config.Instance.waitSeconds;
+                var numOfBatchRings = Config.Instance.numOfBatchRings;
+
                 mapRoom.StartCoroutine(Coroutine.waitFor(mapRoom.ScanInSleepingBatchCellsNotQueuesCoroutine(numOfBatchRings), waitSeconds));
             }
         }
