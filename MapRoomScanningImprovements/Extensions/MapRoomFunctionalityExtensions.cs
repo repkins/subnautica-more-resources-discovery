@@ -14,7 +14,7 @@ namespace MapRoomScanningImprovements.Extensions
         private static LargeWorldStreamer largeWorldStreamer = LargeWorldStreamer.main;
         private static CellManager cellManager = LargeWorldStreamer.main.cellManager;
 
-        private static WorkerThread workerThread = ThreadUtils.StartWorkerThread("I/O", "ScannerThread", System.Threading.ThreadPriority.BelowNormal, -2, 32);
+        private static WorkerThread workerThread = WorkerThread.StartThread("ScannerThread");
 
         public static IEnumerator ScanInSleepingBatchCellsNotQueuesCoroutine(this MapRoomFunctionality mapRoom, int numOfBatchRings)
         {
@@ -70,7 +70,7 @@ namespace MapRoomScanningImprovements.Extensions
 
                                     UnityEngine.GameObject liveRoot;
 
-                                    using (MemoryStream stream = new MemoryStream(serialData.Data.Array, serialData.Data.Offset, serialData.Data.Length, false))
+                                    using (MemoryStream stream = new MemoryStream(serialData.Data, false))
                                     {
                                         bool headerDeserialized = serializerProxy.Value.TryDeserializeStreamHeader(stream);
                                         if (headerDeserialized)
@@ -112,7 +112,7 @@ namespace MapRoomScanningImprovements.Extensions
 
                                     UnityEngine.GameObject waiterRoot;
 
-                                    using (MemoryStream stream = new MemoryStream(waiterData.Data.Array, waiterData.Data.Offset, waiterData.Data.Length, false))
+                                    using (MemoryStream stream = new MemoryStream(waiterData.Data, false))
                                     {
                                         while (stream.Position < waiterData.Length)
                                         {
@@ -144,7 +144,7 @@ namespace MapRoomScanningImprovements.Extensions
 
                                     UnityEngine.GameObject legacyRoot;
 
-                                    using (MemoryStream stream = new MemoryStream(legacyData.Data.Array, legacyData.Data.Offset, legacyData.Data.Length, false))
+                                    using (MemoryStream stream = new MemoryStream(legacyData.Data, false))
                                     {
                                         bool headerDeserialized = serializerProxy.Value.TryDeserializeStreamHeader(stream);
                                         if (headerDeserialized)
