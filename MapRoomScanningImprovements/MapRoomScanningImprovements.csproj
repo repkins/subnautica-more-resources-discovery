@@ -62,7 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\EntityCellExtensions.cs" />
-    <Compile Include="SubRoot_OnPlayerEntered_Patch.cs" />
+    <Compile Include="Player_SetCurrentSub_Patch.cs" />
     <Compile Include="Extensions\MapRoomFunctionalityExtensions.cs" />
     <Compile Include="Extensions\ResourceTrackerExtensions.cs" />
     <Compile Include="Extensions\CellManagerExtensions.cs" />

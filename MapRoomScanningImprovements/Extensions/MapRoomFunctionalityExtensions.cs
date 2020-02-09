@@ -21,10 +21,6 @@ namespace MapRoomScanningImprovements.Extensions
 
         public static IEnumerator ScanInSleepingBatchCellsNotQueuesCoroutine(this MapRoomFunctionality mapRoom, int level)
         {
-            while (UnityEngine.Time.timeScale <= 0)
-            {
-                yield return null;
-            }
             Logger.Debug(string.Format("Starting scan in sleeping BatchCells of level {0}", level));
 
             var batch2Cells = cellManager.GetBatch2Cells();
