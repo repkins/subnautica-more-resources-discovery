@@ -39,7 +39,7 @@ namespace MapRoomScanningImprovements.Extensions
                     {
                         Logger.Debug(string.Format("Loading cells of batch \"{0}\"", batch));
 
-                        batchCells = cellManager.InitializeBatchCells(batch);
+                        batchCells = BatchCells.GetFromPool(cellManager, largeWorldStreamer, batch);
 
                         var loadBatchCellsTask = new LoadBatchCellsTask(cellManager, batchCells);
                         UWE.Utils.EnqueueWrap(workerThread, loadBatchCellsTask);
@@ -95,6 +95,8 @@ namespace MapRoomScanningImprovements.Extensions
                                         {
                                             resourceTracker.Start();
                                             Logger.Debug(string.Format("Entity cell \"{0}\" invoked \"Start\" for {1}", entityCell.ToString(), resourceTracker.gameObject.ToString()));
+
+                                            resourceTracker.OnDestroy();
                                         }
 
                                         UnityEngine.Object.Destroy(liveRoot);
@@ -129,6 +131,8 @@ namespace MapRoomScanningImprovements.Extensions
                                                 {
                                                     resourceTracker.Start();
                                                     Logger.Debug(string.Format("Entity cell \"{0}\" invoked \"Start\" for {1}", entityCell.ToString(), resourceTracker.gameObject.ToString()));
+
+                                                    resourceTracker.OnDestroy();
                                                 }
 
                                                 UnityEngine.Object.Destroy(waiterRoot);
@@ -169,6 +173,8 @@ namespace MapRoomScanningImprovements.Extensions
                                         {
                                             resourceTracker.Start();
                                             Logger.Debug(string.Format("Entity cell \"{0}\" invoked \"Start\" for {1}", entityCell.ToString(), resourceTracker.gameObject.ToString()));
+
+                                            resourceTracker.OnDestroy();
                                         }
 
                                         UnityEngine.Object.Destroy(legacyRoot);
@@ -181,7 +187,7 @@ namespace MapRoomScanningImprovements.Extensions
                     if (!batchVisible)
                     {
                         Logger.Debug(string.Format("Unloading cells of batch \"{0}\"", batch));
-                        cellManager.UnloadBatchCells(batch);
+                        BatchCells.ReturnToPool(batchCells);
                     };
 
                     yield return null;
