@@ -63,7 +63,17 @@ namespace MapRoomScanningImprovements.Extensions
 
                             if (entityCell != null && !entityCell.IsProcessing())
                             {
-                                var serialData = entityCell.GetSerialData();
+                                SerialData serialData;
+                                if (batchVisible)
+                                {
+                                    serialData = new SerialData();
+                                    serialData.CopyFrom(entityCell.GetSerialData());
+                                } 
+                                else
+                                {
+                                    serialData = entityCell.GetSerialData();
+                                }
+
                                 if (serialData.Length > 0)
                                 {
                                     Logger.Debug(string.Format("Entity cell \"{0}\" is not awake and has serialData", entityCell.ToString()));
@@ -107,7 +117,17 @@ namespace MapRoomScanningImprovements.Extensions
                                     }
                                 }
 
-                                var waiterData = entityCell.GetWaiterData();
+                                SerialData waiterData;
+                                if (batchVisible)
+                                {
+                                    waiterData = new SerialData();
+                                    waiterData.CopyFrom(entityCell.GetWaiterData());
+                                }
+                                else
+                                {
+                                    waiterData = entityCell.GetWaiterData();
+                                }
+
                                 if (waiterData.Length > 0)
                                 {
                                     Logger.Debug(string.Format("Entity cell \"{0}\" is not awake and has waiterData", entityCell.ToString()));
@@ -141,7 +161,17 @@ namespace MapRoomScanningImprovements.Extensions
                                     }
                                 }
 
-                                var legacyData = entityCell.GetLegacyData();
+                                SerialData legacyData;
+                                if (batchVisible)
+                                {
+                                    legacyData = new SerialData();
+                                    legacyData.CopyFrom(entityCell.GetLegacyData());
+                                }
+                                else
+                                {
+                                    legacyData = entityCell.GetLegacyData();
+                                }
+
                                 if (legacyData.Length > 0)
                                 {
                                     Logger.Debug(string.Format("Entity cell \"{0}\" has legacyData", entityCell.ToString()));
