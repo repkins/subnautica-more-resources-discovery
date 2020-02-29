@@ -67,6 +67,9 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Extensions\EntityCellExtensions.cs" />
+    <Compile Include="MapRoomScannerUpgrading.cs" />
+    <Compile Include="uGUI_MapRoomScanner_OnDestroy_Patch.cs" />
+    <Compile Include="uGUI_MapRoomScanner_Start_Patch.cs" />
     <Compile Include="Player_SetCurrentSub_Patch.cs" />
     <Compile Include="Extensions\MapRoomFunctionalityExtensions.cs" />
     <Compile Include="Extensions\ResourceTrackerExtensions.cs" />
