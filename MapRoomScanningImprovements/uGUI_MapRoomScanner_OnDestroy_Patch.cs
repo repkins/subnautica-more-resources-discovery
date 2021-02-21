@@ -1,4 +1,4 @@
-﻿using Harmony;
+﻿using HarmonyLib;
 using MapRoomScanningImprovements.Extensions;
 using MapRoomScanningImprovements.Utils;
 using System;

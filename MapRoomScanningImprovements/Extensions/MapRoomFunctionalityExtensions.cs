@@ -11,13 +11,14 @@ namespace MapRoomScanningImprovements.Extensions
 {
     static class MapRoomFunctionalityExtensions
     {
-        private static LargeWorldStreamer largeWorldStreamer = LargeWorldStreamer.main;
-        private static CellManager cellManager = LargeWorldStreamer.main.cellManager;
 
         private static WorkerThread workerThread = ThreadUtils.StartWorkerThread("I/O", "ScannerThread", System.Threading.ThreadPriority.BelowNormal, -2, 32);
 
         public static IEnumerator ScanInSleepingBatchCellsNotQueuesCoroutine(this MapRoomFunctionality mapRoom, int numOfBatchRings)
         {
+            var largeWorldStreamer = LargeWorldStreamer.main;
+            var cellManager = LargeWorldStreamer.main.cellManager;
+
             Logger.Info(string.Format("Starting scan in sleeping/unloaded BatchCells"));
 
             var batch2Cells = cellManager.GetBatch2Cells();
@@ -252,20 +253,15 @@ namespace MapRoomScanningImprovements.Extensions
                 }
             }
 
-            // Token: 0x17000376 RID: 886
-            // (get) Token: 0x06003752 RID: 14162 RVA: 0x00124C70 File Offset: 0x00122E70
             public bool isDone { get; private set; }
 
-            // Token: 0x06003753 RID: 14163 RVA: 0x00124C78 File Offset: 0x00122E78
             public override string ToString()
             {
                 return string.Format("LoadBatchCellsTask {0}", this.batchCells.batch);
             }
 
-            // Token: 0x04003534 RID: 13620
             private readonly CellManager cellManager;
 
-            // Token: 0x04003535 RID: 13621
             private readonly BatchCells batchCells;
         }
     }

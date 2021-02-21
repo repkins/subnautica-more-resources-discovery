@@ -1,4 +1,4 @@
-﻿using Harmony;
+﻿using HarmonyLib;
 using MapRoomScanningImprovements.Utils;
 using System;
 using System.Collections.Generic;
@@ -12,8 +12,7 @@ namespace MapRoomScanningImprovements
     {
         public static void Patch()
         {
-            var harmony = HarmonyInstance.Create("subnautica.repkins.map-room-scanning-improvements");
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
+            var harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), "subnautica.repkins.map-room-scanning-improvements");
             Logger.Info("Successfully patched");
 
             Config.Load();
