@@ -11,7 +11,6 @@ namespace MapRoomScanningImprovements.Extensions
 {
     static class MapRoomFunctionalityExtensions
     {
-
         private static WorkerThread workerThread = ThreadUtils.StartWorkerThread("I/O", "ScannerThread", System.Threading.ThreadPriority.BelowNormal, -2, 32);
 
         public static IEnumerator ScanInSleepingBatchCellsNotQueuesCoroutine(this MapRoomFunctionality mapRoom, int numOfBatchRings)
@@ -83,10 +82,9 @@ namespace MapRoomScanningImprovements.Extensions
 
                                     using (MemoryStream stream = new MemoryStream(serialData.Data.Array, serialData.Data.Offset, serialData.Data.Length, false))
                                     {
-                                        bool headerDeserialized = serializerProxy.Value.TryDeserializeStreamHeader(stream);
-                                        if (headerDeserialized)
+                                        if (serializerProxy.Value.TryDeserializeStreamHeader(stream))
                                         {
-                                            CoroutineTask<UnityEngine.GameObject> task = serializerProxy.Value.DeserializeObjectTreeAsync(stream, true, 0);
+                                            CoroutineTask<UnityEngine.GameObject> task = serializerProxy.Value.DeserializeObjectTreeAsync(stream, true, entityCell.AllowSpawnRestrictions, 0);
 
                                             yield return task;
                                             liveRoot = task.GetResult();
@@ -106,8 +104,6 @@ namespace MapRoomScanningImprovements.Extensions
                                         {
                                             resourceTracker.Start();
                                             Logger.Debug(string.Format("Entity cell \"{0}\" invoked \"Start\" for {1}", entityCell.ToString(), resourceTracker.gameObject.ToString()));
-
-                                            resourceTracker.OnDestroy();
                                         }
 
                                         UnityEngine.Object.Destroy(liveRoot);
@@ -139,7 +135,7 @@ namespace MapRoomScanningImprovements.Extensions
                                     {
                                         while (stream.Position < waiterData.Length)
                                         {
-                                            CoroutineTask<UnityEngine.GameObject> task = serializerProxy.Value.DeserializeObjectTreeAsync(stream, true, 0);
+                                            CoroutineTask<UnityEngine.GameObject> task = serializerProxy.Value.DeserializeObjectTreeAsync(stream, true, entityCell.AllowSpawnRestrictions, 0);
 
                                             yield return task;
                                             waiterRoot = task.GetResult();
@@ -152,8 +148,6 @@ namespace MapRoomScanningImprovements.Extensions
                                                 {
                                                     resourceTracker.Start();
                                                     Logger.Debug(string.Format("Entity cell \"{0}\" invoked \"Start\" for {1}", entityCell.ToString(), resourceTracker.gameObject.ToString()));
-
-                                                    resourceTracker.OnDestroy();
                                                 }
 
                                                 UnityEngine.Object.Destroy(waiterRoot);
@@ -181,10 +175,9 @@ namespace MapRoomScanningImprovements.Extensions
 
                                     using (MemoryStream stream = new MemoryStream(legacyData.Data.Array, legacyData.Data.Offset, legacyData.Data.Length, false))
                                     {
-                                        bool headerDeserialized = serializerProxy.Value.TryDeserializeStreamHeader(stream);
-                                        if (headerDeserialized)
+                                        if (serializerProxy.Value.TryDeserializeStreamHeader(stream))
                                         {
-                                            CoroutineTask<UnityEngine.GameObject> task = serializerProxy.Value.DeserializeObjectTreeAsync(stream, true, 0);
+                                            CoroutineTask<UnityEngine.GameObject> task = serializerProxy.Value.DeserializeObjectTreeAsync(stream, true, entityCell.AllowSpawnRestrictions, 0);
 
                                             yield return task;
                                             legacyRoot = task.GetResult();
@@ -204,8 +197,6 @@ namespace MapRoomScanningImprovements.Extensions
                                         {
                                             resourceTracker.Start();
                                             Logger.Debug(string.Format("Entity cell \"{0}\" invoked \"Start\" for {1}", entityCell.ToString(), resourceTracker.gameObject.ToString()));
-
-                                            resourceTracker.OnDestroy();
                                         }
 
                                         UnityEngine.Object.Destroy(legacyRoot);
@@ -241,7 +232,7 @@ namespace MapRoomScanningImprovements.Extensions
             {
                 try
                 {
-                    this.cellManager.LoadBatchCellsThreaded(this.batchCells, false);
+                    cellManager.LoadBatchCellsThreaded(batchCells);
                 }
                 catch (Exception exception)
                 {
@@ -249,7 +240,7 @@ namespace MapRoomScanningImprovements.Extensions
                 }
                 finally
                 {
-                    this.isDone = true;
+                    isDone = true;
                 }
             }
 
@@ -257,7 +248,7 @@ namespace MapRoomScanningImprovements.Extensions
 
             public override string ToString()
             {
-                return string.Format("LoadBatchCellsTask {0}", this.batchCells.batch);
+                return string.Format("LoadBatchCellsTask {0}", batchCells.batch);
             }
 
             private readonly CellManager cellManager;

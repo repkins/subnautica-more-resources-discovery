@@ -1,4 +1,4 @@
-﻿using Oculus.Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,8 +13,7 @@ namespace MapRoomScanningImprovements
         public float waitSeconds = 0.008f;
         public int numOfBatchRings = 3;
 
-        private static string assemblyName = Assembly.GetCallingAssembly().GetName().Name;
-        private static string configPath = Environment.CurrentDirectory + @"\QMods\" + assemblyName + @"\config.json";
+        private static readonly string configPath = Path.Combine(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location), "config.json");
 
         public static Config Instance { get; private set; } = new Config();
 

@@ -10,7 +10,7 @@ using System.Text;
 namespace MapRoomScanningImprovements
 {
     [HarmonyPatch(typeof(Player))]
-    [HarmonyPatch("SetCurrentSub")]
+    [HarmonyPatch(nameof(Player.SetCurrentSub))]
     class Player_SetCurrentSub_Patch
     {
         private static List<SubRoot> coroutinesSubRoots = new List<SubRoot>();
