@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -15,10 +16,13 @@ namespace MapRoomScanningImprovements.Extensions
 
         public static IEnumerator ScanInSleepingBatchCellsNotQueuesCoroutine(this MapRoomFunctionality mapRoom, int numOfBatchRings)
         {
-            var largeWorldStreamer = LargeWorldStreamer.main;
-            var cellManager = LargeWorldStreamer.main.cellManager;
+            var watch = new Stopwatch();
+            watch.Start();
 
             Logger.Info(string.Format("Starting scan in sleeping/unloaded BatchCells"));
+
+            var largeWorldStreamer = LargeWorldStreamer.main;
+            var cellManager = LargeWorldStreamer.main.cellManager;
 
             var batch2Cells = cellManager.GetBatch2Cells();
 
@@ -215,7 +219,9 @@ namespace MapRoomScanningImprovements.Extensions
                     yield return null;
                 }
             }
-            Logger.Info(string.Format("Finishing scan in sleeping/unloaded BatchCells"));
+            watch.Stop();
+
+            Logger.Info(string.Format("Finishing scan in sleeping/unloaded BatchCells in {0} ms", watch.ElapsedMilliseconds));
 
             yield break;
         }

@@ -10,7 +10,7 @@ namespace MapRoomScanningImprovements
 {
     class Config
     {
-        public float waitSeconds = 0.008f;
+        public float maxFrameMS = 1f;
         public int numOfBatchRings = 3;
 
         private static readonly string configPath = Path.Combine(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location), "config.json");

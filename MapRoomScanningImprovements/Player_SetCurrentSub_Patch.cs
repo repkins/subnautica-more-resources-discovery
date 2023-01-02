@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UWE;
 
 namespace MapRoomScanningImprovements
 {
@@ -40,10 +41,12 @@ namespace MapRoomScanningImprovements
             var mapRoom = subRoot.GetComponentInChildren<MapRoomFunctionality>();
             if (mapRoom != null)
             {
-                var waitSeconds = Config.Instance.waitSeconds;
+                var maxFrameMs = Config.Instance.maxFrameMS;
                 var numOfBatchRings = Config.Instance.numOfBatchRings;
 
-                mapRoom.StartCoroutine(Coroutine.waitFor(mapRoom.ScanInSleepingBatchCellsNotQueuesCoroutine(numOfBatchRings), waitSeconds));
+                var pooledScanStateMachine = CoroutineUtils.PumpCoroutine(mapRoom.ScanInSleepingBatchCellsNotQueuesCoroutine(numOfBatchRings), "ScanForResources", maxFrameMs);
+
+                mapRoom.StartCoroutine(pooledScanStateMachine);
             }
         }
     }
