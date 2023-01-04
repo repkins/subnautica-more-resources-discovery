@@ -41,7 +41,7 @@ namespace MapRoomScanningImprovements
             var mapRoom = subRoot.GetComponentInChildren<MapRoomFunctionality>();
             if (mapRoom != null)
             {
-                var maxFrameMs = Config.Instance.maxFrameMS;
+                var maxFrameMs = Config.Instance.maxFrameMs;
                 var numOfBatchRings = Config.Instance.numOfBatchRings;
 
                 var pooledScanStateMachine = CoroutineUtils.PumpCoroutine(mapRoom.ScanInSleepingBatchCellsNotQueuesCoroutine(numOfBatchRings), "ScanForResources", maxFrameMs);
