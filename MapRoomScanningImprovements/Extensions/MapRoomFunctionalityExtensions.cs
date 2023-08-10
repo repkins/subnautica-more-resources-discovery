@@ -238,7 +238,7 @@ namespace MapRoomScanningImprovements.Extensions
             {
                 try
                 {
-                    cellManager.LoadBatchCellsThreaded(batchCells);
+                    cellManager.LoadBatchCellsThreadedAsync(batchCells, false);
                 }
                 catch (Exception exception)
                 {
