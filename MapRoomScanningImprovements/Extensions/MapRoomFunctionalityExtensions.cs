@@ -12,8 +12,6 @@ namespace MapRoomScanningImprovements.Extensions
 {
     static class MapRoomFunctionalityExtensions
     {
-        private static WorkerThread workerThread = ThreadUtils.StartWorkerThread("I/O", "ScannerThread", System.Threading.ThreadPriority.BelowNormal, -2, 32);
-
         public static IEnumerator ScanInSleepingBatchCellsNotQueuesCoroutine(this MapRoomFunctionality mapRoom, int numOfBatchRings)
         {
             var watch = new Stopwatch();
@@ -70,7 +68,7 @@ namespace MapRoomScanningImprovements.Extensions
                                 {
                                     serialData = new SerialData();
                                     serialData.CopyFrom(entityCell.GetSerialData());
-                                } 
+                                }
                                 else
                                 {
                                     serialData = entityCell.GetSerialData();
@@ -222,42 +220,6 @@ namespace MapRoomScanningImprovements.Extensions
             Logger.Info(string.Format("Finishing scan in sleeping/unloaded BatchCells in {0} ms", watch.ElapsedMilliseconds));
 
             yield break;
-        }
-    
-        private sealed class LoadBatchCellsTask : IWorkerTask, IAsyncOperation
-        {
-            public LoadBatchCellsTask(CellManager cellManager, BatchCells batchCells)
-            {
-                this.cellManager = cellManager;
-                this.batchCells = batchCells;
-            }
-
-            public void Execute()
-            {
-                try
-                {
-                    cellManager.LoadBatchCellsThreadedAsync(batchCells, false);
-                }
-                catch (Exception exception)
-                {
-                    UnityEngine.Debug.LogException(exception);
-                }
-                finally
-                {
-                    isDone = true;
-                }
-            }
-
-            public bool isDone { get; private set; }
-
-            public override string ToString()
-            {
-                return string.Format("LoadBatchCellsTask {0}", batchCells.batch);
-            }
-
-            private readonly CellManager cellManager;
-
-            private readonly BatchCells batchCells;
         }
     }
 }
