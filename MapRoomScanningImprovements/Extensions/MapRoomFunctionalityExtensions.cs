@@ -45,9 +45,7 @@ namespace MapRoomScanningImprovements.Extensions
 
                         batchCells = BatchCells.GetFromPool(cellManager, largeWorldStreamer, batch);
 
-                        var loadBatchCellsTask = new LoadBatchCellsTask(cellManager, batchCells);
-                        UWE.Utils.EnqueueWrap(workerThread, loadBatchCellsTask);
-                        yield return new AsyncAwaiter(loadBatchCellsTask);
+                        yield return cellManager.LoadBatchCellsThreadedAsync(batchCells, false);
 
                         batchVisible = false;
                     }
