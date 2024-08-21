@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MapRoomScanningImprovements
 {
-    [BepInPlugin("subnautica.repkins.map-room-scanning-improvements", "More Resources Discovery", "1.1.1.0")]
+    [BepInPlugin("subnautica.repkins.map-room-scanning-improvements", "More Resources Discovery", "1.1.1")]
     public class Plugin: BaseUnityPlugin
     {
         public void Awake()
